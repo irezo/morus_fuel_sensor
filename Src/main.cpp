@@ -45,6 +45,11 @@
 #include "stm32f3xx_hal.h"
 #include "i2c.h"
 #include "gpio.h"
+#include "read_register.h"
+#include "write_register.h"
+#include "calibration.h"
+#include "liquid_level.h"
+#include "register_init.h"
 
 /* USER CODE BEGIN Includes */
 #include <fsu_libuavcan.h>
@@ -56,6 +61,10 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 fsu_libuavcan fsu_can1;
+float level;
+int fuel_level;
+float MEAS1_EMPTY, MEAS2_EMPTY, MEAS3_EMPTY;
+float MEAS1, MEAS2, MEAS3;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,13 +107,21 @@ int main(void)
 	fsu_can1.fsu_libuavcan_Init(fsu_parameters.fsu_id);
 	fsu_can1.set_fuel_sensorID(fsu_parameters.fsu_id);
 	fsu_can1.start();
+	
+	register_init();
+	
+	calibration (&MEAS1_EMPTY, &MEAS2_EMPTY, &MEAS3_EMPTY);
+	
   /* USER CODE END 2 */
   
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		
+		liquid_level (&MEAS1_EMPTY, &MEAS2_EMPTY, &MEAS3_EMPTY, &MEAS1, &MEAS2, &MEAS3, &fuel_level, &level);
+		
   /* USER CODE END WHILE */
-		fsu_can1.set_fuel_level(0);
+		fsu_can1.set_fuel_level(fuel_level);//fuel_level (int, 5% units) or level (float)
 		fsu_can1.fuel_sensor_status_publish();
 		fsu_can1.spin(50);
   /* USER CODE BEGIN 3 */

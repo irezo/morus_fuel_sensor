@@ -1,0 +1,1 @@
+void write_register(uint8_t register_pointer, uint16_t register_value);

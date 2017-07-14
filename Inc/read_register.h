@@ -1,0 +1,1 @@
+void read_register(uint8_t register_pointer, uint8_t* receive_buffer);
